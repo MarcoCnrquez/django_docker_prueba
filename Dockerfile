@@ -18,4 +18,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Ejecuta migraciones automáticamente y luego arranca Gunicorn
-CMD ["sh", "-c", "python manage.py migrate && gunicorn pruebaproyecto.wsgi:application --bind 0.0.0.0:$PORT"]
+CMD ["sh", "-c", "python manage.py migrate && python create_superuser.py && gunicorn pruebaproyecto.wsgi:application --bind 0.0.0.0:$PORT"]

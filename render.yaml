@@ -1,26 +1,32 @@
 services:
   # 1. Servicio de Base de Datos (PostgreSQL)
-  - type: pserv
+  - type: postgres # CAMBIO CLAVE: Usa 'postgres' para crear la BD Add-on
     name: mi-django-db
     plan: free
-    region: oregon # O la región que elijas, debe coincidir con el web service
-    # Esto es solo si necesitas persistencia de datos
+    region: oregon 
+    # El resto de la configuración de la BD la maneja Render
 
   # 2. Servicio Web (Django/Gunicorn)
   - type: web
     name: mi-django-app
     # Render usará tu Dockerfile, pero aquí definimos el plan y la región.
     plan: free
-    region: oregon # Debe coincidir con la base de datos
+    region: oregon 
     autoDeploy: true
     branch: main
-    # Render ejecutará el CMD de tu Dockerfile (Gunicorn)
-    env: docker
     
-    # Comandos de post-despliegue (Ejecución de migraciones)
+    # Se le indica a Render que la imagen debe ser construida con Dockerfile
+    env: docker 
+    
+    # Render busca el comando de inicio (gunicorn...) en tu Dockerfile.
+    # Por lo tanto, ¡ELIMINAMOS la línea 'startCommand'!
+    
+    # IMPORTANTE: Reemplaza buildCommand por postDeployCommand para las migraciones
+    # buildCommand es para el proceso de Dockerfile, no para comandos de Django.
+    postDeployCommand: "python manage.py migrate" 
+    
+    # Otras configuraciones
     numInstances: 1
-    buildCommand: "./build.sh" # Opcional: puedes ejecutar scripts complejos aquí si es necesario
-    startCommand: "gunicorn pruebaproyecto.wsgi:application --bind 0.0.0.0:$PORT"
     
     # Conexión a la Base de Datos
     envVars:
@@ -29,4 +35,4 @@ services:
           name: mi-django-db
           property: connectionString
       - key: WEB_HOST
-        value: mi-django-app.onrender.com # Tu dominio final
+        value: mi-django-app.onrender.com

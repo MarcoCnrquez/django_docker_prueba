@@ -13,8 +13,8 @@ services:
     autoDeploy: true
     branch: main
     
-    env: docker # <-- ESTE ES EL CAMBIO CLAVE para indicar que use el Dockerfile
-    
+    runtime: image   # <-- ESTO ES LO CORRECTO PARA USAR DOCKERFILE
+
     numInstances: 1
 
     envVars:
@@ -22,5 +22,6 @@ services:
         fromDatabase:
           name: mi-django-db
           property: connectionString
+
       - key: WEB_HOST
         value: mi-django-app.onrender.com

@@ -41,5 +41,5 @@ else:
     print('Variables de entorno no configuradas')
 EOF
 
-    gunicorn pruebaproyecto.wsgi:application --bind 0.0.0.0:$PORT
+    gunicorn pruebaproyecto.wsgi:application --bind 0.0.0.0:${PORT}
 "

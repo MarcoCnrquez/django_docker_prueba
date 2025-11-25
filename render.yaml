@@ -10,8 +10,7 @@ services:
     region: oregon
     autoDeploy: true
     branch: main
-    runtime: docker  
-    startCommand: "gunicorn django_docker_prueba.wsgi:application --bind 0.0.0.0:$PORT"
+    runtime: docker
     numInstances: 1
     envVars:
       - key: DATABASE_URL

@@ -1,6 +1,6 @@
 services:
   # 1. Servicio de Base de Datos (PostgreSQL)
-  - type: pserv # Tipo de servicio persistente para la BD
+  - type: pserv # Tipo de servicio persistente
     name: mi-django-db
     plan: free
     region: oregon 
@@ -17,10 +17,6 @@ services:
     branch: main
     env: docker 
     
-    # IMPORTANTE: Eliminamos 'postBuildSteps' para evitar conflictos con Docker.
-    # La recolección de estáticos (collectstatic) se debe hacer en el Dockerfile o
-    # se omite si se hace manualmente.
-
     numInstances: 1
     
     # Conexión a la Base de Datos (Crea la variable DATABASE_URL para la app)
@@ -30,23 +26,4 @@ services:
           name: mi-django-db
           property: connectionString
       - key: WEB_HOST
-        value: mi-django-app.onrender.com 
-
-# 3. Job para Migraciones (Se ejecuta manualmente después del primer despliegue)
-jobs:
-  - type: job
-    name: migrate
-    region: oregon
-    plan: free
-    env: docker
-    command: "python manage.py migrate"
-    
-    # El autoDeploy debe ser 'false' para que no corra con cada push
-    autoDeploy: false
-    
-    # Conexión a la Base de Datos para el Job
-    envVars:
-      - key: DATABASE_URL # CORRECCIÓN: Usamos el mismo patrón para conectar la BD al Job
-        fromDatabase:
-          name: mi-django-db
-          property: connectionString
+        value: mi-django-app.onrender.com

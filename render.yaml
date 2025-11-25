@@ -16,7 +16,7 @@ services:
     env: docker # CORRECCIÓN: Usar 'env: docker' para construir desde Dockerfile
     
     # ESTO EJECUTA LA MIGRACIÓN AUTOMÁTICAMENTE DESPUÉS DE CADA DESPLIEGUE EXITOSO
-    postDeployCommand: "python manage.py migrate" 
+    #postDeployCommand: "python manage.py migrate" 
     
     numInstances: 1
     

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'app_prueba',
 ]
 #Middleware sirve para gestionar las solicitudes y respuestas HTTP en Django
 # Permite agregar funcionalidades como seguridad, manejo de sesiones, etc.

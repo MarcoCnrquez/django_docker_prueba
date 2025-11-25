@@ -1,19 +1,17 @@
 services:
-  # 1. Servicio de Base de Datos (PostgreSQL)
+  # 1. PostgreSQL
   - type: pserv
     name: mi-django-db
     plan: free
     region: oregon
 
-  # 2. Servicio Web (Django en Docker)
+  # 2. Django con Dockerfile
   - type: web
     name: mi-django-app
     plan: free
     region: oregon
     autoDeploy: true
     branch: main
-    
-    runtime: image   # <-- ESTO ES LO CORRECTO PARA USAR DOCKERFILE
 
     numInstances: 1
 

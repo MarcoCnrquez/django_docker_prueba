@@ -1,9 +1,4 @@
 services:
-  - type: pserv
-    name: mi-django-db
-    plan: free
-    region: oregon
-
   - type: web
     name: mi-django-app
     plan: free

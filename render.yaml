@@ -1,16 +1,12 @@
 services:
   # 1. Servicio de Base de Datos (PostgreSQL)
-  - type: pserv # CORRECCIÓN: Usamos 'pserv' (Persistent Service) para la BD
+  - type: pserv # Tipo de servicio persistente para la BD
     name: mi-django-db
     plan: free
     region: oregon 
-    
-    # Se añade la configuración específica de Postgres
     disk:
       name: postgres-disk
       sizeGB: 1
-    
-    # Render infiere que es Postgres basado en la conexión, pero pserv es el tipo.
 
   # 2. Servicio Web (Django/Gunicorn)
   - type: web
@@ -21,19 +17,13 @@ services:
     branch: main
     env: docker 
     
-    # El comando de inicio (gunicorn...) se ejecuta desde el CMD en el Dockerfile
-    # Por lo tanto, NO usamos startCommand aquí.
+    # IMPORTANTE: Eliminamos 'postBuildSteps' para evitar conflictos con Docker.
+    # La recolección de estáticos (collectstatic) se debe hacer en el Dockerfile o
+    # se omite si se hace manualmente.
 
-    # Post-despliegue: Ejecutamos las migraciones después de que el servicio esté "Live"
     numInstances: 1
-    postBuildSteps: 
-      - path: .
-        command: "python manage.py collectstatic --noinput"
     
-    # Se elimina postDeployCommand y se añade un paso de migración.
-    # En Render, las migraciones se hacen mejor a través de un Job o desde la Shell.
-    
-    # Conexión a la Base de Datos
+    # Conexión a la Base de Datos (Crea la variable DATABASE_URL para la app)
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -42,21 +32,21 @@ services:
       - key: WEB_HOST
         value: mi-django-app.onrender.com 
 
-# 3. Job para Migraciones (Opcional, pero más limpio que comandos automáticos)
+# 3. Job para Migraciones (Se ejecuta manualmente después del primer despliegue)
 jobs:
   - type: job
     name: migrate
     region: oregon
     plan: free
-    # El entorno debe ser el mismo que el del servicio web
     env: docker
     command: "python manage.py migrate"
     
-    # Solo se ejecuta una vez, después del primer despliegue
+    # El autoDeploy debe ser 'false' para que no corra con cada push
     autoDeploy: false
-    # Necesita que la BD se haya creado
+    
+    # Conexión a la Base de Datos para el Job
     envVars:
-      - key: DATABASE_URL
+      - key: DATABASE_URL # CORRECCIÓN: Usamos el mismo patrón para conectar la BD al Job
         fromDatabase:
           name: mi-django-db
           property: connectionString

@@ -1,0 +1,51 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/usr/src/app
+      
+    # ------------------------------------------------------------------
+    # 4. DEPENDENCY CORREGIDA: Espera a que el servicio 'db' esté sano (healthy).
+    depends_on:
+      db:
+        condition: service_healthy 
+    # ------------------------------------------------------------------
+        
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             gunicorn pruebaproyecto.wsgi:application --bind 0.0.0.0:8000"
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+
+    # ------------------------------------------------------------------
+    # NUEVA SECCIÓN: Definición de la prueba de salud para el contenedor 'db'.
+    healthcheck:
+      # Prueba: Usa el comando 'pg_isready' para verificar el estado de la BD.
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      # Intervalo: Revisa cada 5 segundos.
+      interval: 5s
+      # Tiempo de espera: Fallar si no responde en 5 segundos.
+      timeout: 5s
+      # Intentos: Reintentar 5 veces.
+      retries: 5
+      # Periodo de inicio: Dale 10 segundos para inicializar.
+      start_period: 10s
+    # ------------------------------------------------------------------
+
+
+# Volumen para que la base de datos no se pierda al apagar Docker.
+volumes:
+  postgres_data:

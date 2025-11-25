@@ -17,6 +17,3 @@ services:
         fromDatabase:
           name: mi-django-db
           property: connectionString
-
-      - key: WEB_HOST
-        value: mi-django-app.onrender.com

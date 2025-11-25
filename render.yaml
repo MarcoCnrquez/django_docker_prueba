@@ -1,12 +1,10 @@
 services:
   # 1. Servicio de Base de Datos (PostgreSQL)
-  - type: pserv # Tipo de servicio persistente
+  - type: postgres # CORRECCIÓN FINAL: Usamos 'postgres' para el servicio Add-on gratuito
     name: mi-django-db
     plan: free
     region: oregon 
-    disk:
-      name: postgres-disk
-      sizeGB: 1
+    # Eliminamos toda la sección 'disk:' y sus sub-propiedades.
 
   # 2. Servicio Web (Django/Gunicorn)
   - type: web

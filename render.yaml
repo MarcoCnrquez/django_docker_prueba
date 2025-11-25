@@ -1,23 +1,22 @@
 services:
   # 1. Servicio de Base de Datos (PostgreSQL)
-  - type: pserv # CORRECCIÓN FINAL: Usamos 'pserv' (Persistent Service)
+  - type: pserv
     name: mi-django-db
     plan: free
-    region: oregon 
-    # ELIMINAMOS TODA LA SECCIÓN 'disk:' Y SUS SUB-PROPIEDADES.
-    
-  # 2. Servicio Web (Django/Gunicorn)
+    region: oregon
+
+  # 2. Servicio Web (Django en Docker)
   - type: web
     name: mi-django-app
     plan: free
-    region: oregon 
+    region: oregon
     autoDeploy: true
     branch: main
-    env: docker 
+    
+    env: docker # <-- ESTE ES EL CAMBIO CLAVE para indicar que use el Dockerfile
     
     numInstances: 1
-    
-    # Conexión a la Base de Datos (Crea la variable DATABASE_URL para la app)
+
     envVars:
       - key: DATABASE_URL
         fromDatabase:

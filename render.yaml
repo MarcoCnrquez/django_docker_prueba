@@ -1,18 +1,15 @@
 services:
-  # 1. PostgreSQL
   - type: pserv
     name: mi-django-db
     plan: free
     region: oregon
 
-  # 2. Django con Dockerfile
   - type: web
     name: mi-django-app
     plan: free
     region: oregon
     autoDeploy: true
     branch: main
-
     numInstances: 1
 
     envVars:

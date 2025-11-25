@@ -4,7 +4,7 @@ services:
     plan: free
     region: oregon
     autoDeploy: true
-    branch: main
+    branch: master
     runtime: docker
     numInstances: 1
     envVars:

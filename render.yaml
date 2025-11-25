@@ -1,32 +1,37 @@
 services:
   # 1. Servicio de Base de Datos (PostgreSQL)
-  - type: postgres # CAMBIO CLAVE: Usa 'postgres' para crear la BD Add-on
+  - type: pserv # CORRECCIÓN: Usamos 'pserv' (Persistent Service) para la BD
     name: mi-django-db
     plan: free
     region: oregon 
-    # El resto de la configuración de la BD la maneja Render
+    
+    # Se añade la configuración específica de Postgres
+    disk:
+      name: postgres-disk
+      sizeGB: 1
+    
+    # Render infiere que es Postgres basado en la conexión, pero pserv es el tipo.
 
   # 2. Servicio Web (Django/Gunicorn)
   - type: web
     name: mi-django-app
-    # Render usará tu Dockerfile, pero aquí definimos el plan y la región.
     plan: free
     region: oregon 
     autoDeploy: true
     branch: main
-    
-    # Se le indica a Render que la imagen debe ser construida con Dockerfile
     env: docker 
     
-    # Render busca el comando de inicio (gunicorn...) en tu Dockerfile.
-    # Por lo tanto, ¡ELIMINAMOS la línea 'startCommand'!
-    
-    # IMPORTANTE: Reemplaza buildCommand por postDeployCommand para las migraciones
-    # buildCommand es para el proceso de Dockerfile, no para comandos de Django.
-    postDeployCommand: "python manage.py migrate" 
-    
-    # Otras configuraciones
+    # El comando de inicio (gunicorn...) se ejecuta desde el CMD en el Dockerfile
+    # Por lo tanto, NO usamos startCommand aquí.
+
+    # Post-despliegue: Ejecutamos las migraciones después de que el servicio esté "Live"
     numInstances: 1
+    postBuildSteps: 
+      - path: .
+        command: "python manage.py collectstatic --noinput"
+    
+    # Se elimina postDeployCommand y se añade un paso de migración.
+    # En Render, las migraciones se hacen mejor a través de un Job o desde la Shell.
     
     # Conexión a la Base de Datos
     envVars:
@@ -35,4 +40,23 @@ services:
           name: mi-django-db
           property: connectionString
       - key: WEB_HOST
-        value: mi-django-app.onrender.com
+        value: mi-django-app.onrender.com 
+
+# 3. Job para Migraciones (Opcional, pero más limpio que comandos automáticos)
+jobs:
+  - type: job
+    name: migrate
+    region: oregon
+    plan: free
+    # El entorno debe ser el mismo que el del servicio web
+    env: docker
+    command: "python manage.py migrate"
+    
+    # Solo se ejecuta una vez, después del primer despliegue
+    autoDeploy: false
+    # Necesita que la BD se haya creado
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mi-django-db
+          property: connectionString

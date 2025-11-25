@@ -1,4 +1,3 @@
-
 services:
   - type: pserv
     name: mi-django-db
@@ -11,13 +10,13 @@ services:
     region: oregon
     autoDeploy: true
     branch: main
+    runtime: docker  
+    startCommand: "gunicorn django_docker_prueba.wsgi:application --bind 0.0.0.0:$PORT"
     numInstances: 1
-
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: mi-django-db
           property: connectionString
-
       - key: WEB_HOST
         value: mi-django-app.onrender.com
